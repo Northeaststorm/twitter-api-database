@@ -17,9 +17,9 @@ class TestTweetViews(TestCase):
         db.drop_all()
 
     def test_read_many_tweets(self):
-        first_tweet = Tweet('First tweet')
+        first_tweet = Tweet(text='First tweet')
         db.session.add(first_tweet)
-        second_tweet = Tweet('Second tweet')
+        second_tweet = Tweet(text='Second tweet')
         db.session.add(second_tweet)
         db.session.commit()
 
@@ -41,7 +41,7 @@ class TestTweetViews(TestCase):
         self.assertIsNotNone(response_second_tweet['created_at'])
 
     def test_read_one_tweet(self):
-        first_tweet = Tweet('First tweet')
+        first_tweet = Tweet(text='First tweet')
         db.session.add(first_tweet)
         db.session.commit()
         response = self.client.get('/tweets/1')
@@ -63,7 +63,7 @@ class TestTweetViews(TestCase):
         self.assertIsNotNone(created_tweet['created_at'])
 
     def test_update_one_tweet(self):
-        tweet_to_update = Tweet('Tweet to update')
+        tweet_to_update = Tweet(text='Tweet to update')
         db.session.add(tweet_to_update)
         db.session.commit()
         response = self.client.patch('/tweets/1', json={'text': 'New text'})
@@ -72,13 +72,13 @@ class TestTweetViews(TestCase):
 
         # We use direct access to database to validate our operation
         # Database return Tweet instance, not json converted to a dict
-        updated_tweet = tweet_repository.get(1)
+        updated_tweet = self.client.get(1)
         self.assertEqual(updated_tweet.id, 1)
         self.assertEqual(updated_tweet.text, 'New text')
         self.assertIsNotNone(updated_tweet.created_at)
 
     def test_delete_one_tweet(self):
-        tweet_to_delete = Tweet('A tweet')
+        tweet_to_delete = Tweet(text='A tweet')
         db.session.add(tweet_to_delete)
         db.session.commit()
         response = self.client.delete('/tweets/1')
@@ -86,7 +86,7 @@ class TestTweetViews(TestCase):
         self.assertEqual(response.status_code, 204)
 
         # We use direct access to database to validate our operation
-        self.assertIsNone(tweet_repository.get(1))
+        self.assertIsNone(self.client.get(1))
 
     def test_tweet_show(self):
         first_tweet = Tweet(text="First tweet")
