@@ -1,5 +1,5 @@
 from flask_testing import TestCase
-from app import create_app
+from app import create_app,db
 from app.models import Tweet
 
 class TestTweetViews(TestCase):
