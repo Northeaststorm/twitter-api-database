@@ -58,12 +58,17 @@ class TweetsResource(Resource):
         # No need to verify if 'text' is present in body, or if it is a valid string since we use validate=True
         # body has already been validated using json_new_tweet schema
         text = api.payload['text']
-        tweet = Tweet(text)
-        tweet_repository.add(tweet)
-        return tweet, 201
+        if len(text) > 0:
+            tweet = Tweet(text=text)
+            db.session.add(tweet)
+            db.session.commit()
+            return tweet, 201
+        else:
+            return api.abort(422, "Tweet text can't be empty")
 
     # Here we use marshal_list_with (instead of marshal_with) to return a list of tweets
     @api.marshal_list_with(json_tweet)
     def get(self):  # GET method
-        tweets = tweet_repository.get_all()
-        return tweets, 200
+        tweets = db.session.query(Tweet).all()
+        return tweets, 201
+    
